@@ -50,7 +50,11 @@ pub fn start() {
                     let doc = if query().contains("sample") { wordcraft_engine::sample::sample_document() } else { wordcraft_doc::Document::new() };
                     let mut app = WordApp::new(Session::new(doc), services(inbox.clone(), cc.egui_ctx.clone(), dirty));
                     app.autosave = false;
-                    Ok(Box::new(WebShell { app, inbox }))
+                    app.ui.show_discord = false;
+                    app.ui.language = "de".into();
+                    app.session.view.proofing = false;
+                    crate::nalvra::register(&cc.egui_ctx);
+                    Ok(Box::new(WebShell { app, inbox, reported_dirty: None }))
                 }),
             )
             .await;
@@ -72,10 +76,12 @@ fn query() -> String {
 struct WebShell {
     app: WordApp,
     inbox: Inbox,
+    reported_dirty: Option<bool>,
 }
 
 impl eframe::App for WebShell {
     fn logic(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        crate::nalvra::process(&mut self.app);
         let dropped = ctx.input_mut(|i| std::mem::take(&mut i.raw.dropped_files));
         for f in dropped {
             let inbox = self.inbox.clone();
@@ -92,6 +98,10 @@ impl eframe::App for WebShell {
             });
         }
         self.app.logic(ctx);
+        if self.reported_dirty != Some(self.app.session.dirty) {
+            self.reported_dirty = Some(self.app.session.dirty);
+            crate::nalvra::emit(serde_json::json!({"event":"state", "dirty":self.app.session.dirty}));
+        }
     }
 
     fn raw_input_hook(&mut self, _ctx: &egui::Context, raw: &mut egui::RawInput) {
@@ -174,7 +184,13 @@ fn services(inbox: Inbox, ctx: egui::Context, dirty: Rc<Cell<bool>>) -> Services
         })),
         // Exports ask for a name; the browser decides where the download goes.
         pick_save: Some(Box::new(|name: &str| Some(name.to_string()))),
-        download: Some(Box::new(download)),
+        download: Some(Box::new(|path, bytes| {
+            if path.to_ascii_lowercase().ends_with(".pdf") {
+                download(path, bytes)
+            } else {
+                Err("Bitte oben in NALVRA auf Speichern oder DOCX herunterladen klicken.".into())
+            }
+        })),
         print: Some(Box::new(print_pdf)),
         inbox: Some(inbox),
         on_dirty: Some(Box::new(move |d| dirty.set(d))),
