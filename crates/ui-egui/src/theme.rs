@@ -254,6 +254,49 @@ impl Tokens {
         }
     }
     pub fn get(ctx: &egui::Context) -> Tokens {
+        if ctx.data(|d| d.get_temp::<bool>(egui::Id::new("nalvra_hosted"))).unwrap_or(false) {
+            if let Some(p) = ctx.data(|d| d.get_temp::<crate::hosted::Palette>(egui::Id::new("hosted_palette"))) {
+                let mut t = if p.dark { Tokens::dark() } else { Tokens::light() };
+                t.title_bar = p.panel;
+                t.ribbon = p.panel;
+                t.tab_strip = p.panel;
+                t.panel = p.panel;
+                t.canvas = p.canvas;
+                t.menu = p.panel;
+                t.text = p.text;
+                t.text_dim = p.muted;
+                t.group_label = p.muted;
+                t.icon = p.text;
+                t.border = p.border;
+                t.input_border = p.border;
+                t.input = p.canvas;
+                t.accent = p.accent;
+                t.accent_text = p.accent;
+                t.blue = p.accent;
+                t.checked = p.accent.lerp_to_gamma(p.panel, 0.78);
+                t.hover = p.accent.lerp_to_gamma(p.panel, 0.88);
+                t.pressed = p.accent.lerp_to_gamma(p.panel, 0.65);
+                t.selection = p.accent.gamma_multiply(0.35);
+                t.status_bar = p.panel;
+                t.on_accent = if p.accent.intensity() > 0.55 { Color32::BLACK } else { Color32::WHITE };
+                return t;
+            }
+            let mut t = Tokens::dark();
+            t.title_bar = Color32::from_rgb(23, 26, 27);
+            t.ribbon = Color32::from_rgb(31, 35, 36);
+            t.tab_strip = t.title_bar;
+            t.panel = t.ribbon;
+            t.canvas = Color32::from_rgb(47, 51, 52);
+            t.accent = Color32::from_rgb(194, 165, 108);
+            t.accent_text = Color32::from_rgb(222, 199, 153);
+            t.on_accent = Color32::from_rgb(25, 27, 28);
+            t.hover = Color32::from_rgb(53, 56, 54);
+            t.pressed = Color32::from_rgb(66, 61, 49);
+            t.checked = Color32::from_rgb(74, 65, 45);
+            t.selection = Color32::from_rgba_unmultiplied(170, 144, 88, 90);
+            t.status_bar = t.title_bar;
+            return t;
+        }
         if ctx.global_style().visuals.dark_mode { Tokens::dark() } else { Tokens::light() }
     }
 }

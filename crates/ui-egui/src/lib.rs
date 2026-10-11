@@ -27,6 +27,7 @@ pub mod dialogs_ribbon;
 pub mod equation_tab;
 pub mod file_dialogs;
 pub mod frame;
+pub mod hosted;
 pub mod i18n;
 pub mod icons;
 pub mod ink;
@@ -167,6 +168,8 @@ impl Default for UiState {
 
 /// The application.
 pub struct WordApp {
+    /// Optional document storage and chrome supplied by an embedding application.
+    pub hosted: Option<hosted::HostedDocument>,
     pub session: Session,
     pub ui: UiState,
     pub services: Services,
@@ -249,6 +252,7 @@ impl SaveChoice {
 impl WordApp {
     pub fn new(session: Session, services: Services) -> Self {
         WordApp {
+            hosted: None,
             session,
             ui: UiState::default(),
             services,
@@ -337,6 +341,9 @@ impl WordApp {
     /// Close, Envelopes, Labels and Finish & Merge on a document with unsaved changes first ask
     /// Save / Don't Save / Cancel, and the command runs once that is answered (`ui.saveChanges`).
     pub fn run(&mut self, id: &str, params: Value) -> Result<Value, String> {
+        if let Some(result) = hosted::command(self, id) {
+            return result;
+        }
         // A button whose command needs input the user hasn't given yet opens its dialog (#240).
         if let Some(name) = input_dialog(id, &params)
             && widgets::enabled(self, id)
@@ -371,6 +378,9 @@ impl WordApp {
     /// Run a command for a script or an agent (control channel, MCP bridge): never asks first.
     /// UI-level commands (`ui.*`) are handled here, the rest by the engine.
     pub fn execute(&mut self, id: &str, params: Value) -> Result<Value, String> {
+        if let Some(result) = hosted::command(self, id) {
+            return result;
+        }
         // A pending Change Picture only survives until the next action (#147).
         if !matches!(id, "ui.changePicture" | "picture.change" | "insert.picture") {
             self.change_picture_target = None;
@@ -943,6 +953,8 @@ impl WordApp {
         let t0 = now_ms();
         let ctx = ui.ctx().clone();
         i18n::set_current(i18n::Lang::from_pref(&self.ui.language));
+        i18n::set_hosted(self.hosted.is_some());
+        hosted::install_theme(&ctx, self.hosted.is_some());
         // Fonts installed by `logic` take effect on the next frame.
         if self.fonts_frames < 2 {
             self.fonts_frames += 1;
@@ -954,9 +966,17 @@ impl WordApp {
         // the ribbon so they sit on top of it.
         crate::keytips::logic(self, &ctx);
         if self.ui.backstage {
-            backstage::show(self, ui);
+            if self.hosted.is_some() {
+                hosted::files(self, ui);
+            } else {
+                backstage::show(self, ui);
+            }
         } else {
-            chrome::title_bar(self, ui);
+            if self.hosted.is_some() {
+                hosted::title(self, ui);
+            } else {
+                chrome::title_bar(self, ui);
+            }
             ribbon::show(self, ui);
             chrome::status_bar(self, ui);
             panes::show(self, ui);

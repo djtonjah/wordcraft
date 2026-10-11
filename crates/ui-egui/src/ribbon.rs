@@ -117,6 +117,15 @@ pub fn show(app: &mut WordApp, ui: &mut Ui) {
                     resp.context_menu(|ui| crate::widgets::customize_menu_items(ui, app));
                 }
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                    if app.hosted.is_some() {
+                        if ui.button("PDF exportieren").clicked() {
+                            let _ = app.run("file.exportPdf", json!({}));
+                        }
+                        if ui.button("Dokument").clicked() {
+                            app.ui.backstage = true;
+                        }
+                        return;
+                    }
                     // Share, Editing mode, Comments.
                     let share = tl!("Share");
                     let share_w = ui.ctx().fonts_mut(|f| f.layout_no_wrap(share.to_string(), medium(12.0), t.text).size().x);

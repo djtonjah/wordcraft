@@ -209,6 +209,29 @@ fn detect_system_lang() -> Lang {
 thread_local! {
     // Per thread: parallel test harnesses must not change each other's language.
     static CURRENT: Cell<Lang> = const { Cell::new(Lang::EN) };
+    static HOSTED: Cell<bool> = const { Cell::new(false) };
+}
+
+/// Hosted NALVRA command labels are a scoped catalog, not a complete language pack.
+pub fn set_hosted(value: bool) {
+    HOSTED.set(value);
+}
+
+#[cfg(test)]
+#[test]
+fn hosted_catalog_keeps_command_keys_and_placeholders_valid() {
+    let (_, errors) = Catalog::parse(include_str!("de-hosted.tsv"));
+    assert!(errors.is_empty(), "{errors:?}");
+    set_hosted(true);
+    assert_eq!(location("Home › Font"), "Start › Schrift");
+    assert_eq!(t("Save"), "Speichern");
+    assert_eq!(t("file.save"), "file.save");
+    set_hosted(false);
+    assert_eq!(t("Save"), "Save");
+}
+fn hosted_catalog() -> &'static Catalog {
+    static CATALOG: OnceLock<Catalog> = OnceLock::new();
+    CATALOG.get_or_init(|| Catalog::parse(include_str!("de-hosted.tsv")).0)
 }
 
 /// Set the language the UI is drawn in (the app does this every frame from its setting).
@@ -228,12 +251,22 @@ pub fn has(lang: Lang, s: &str) -> bool {
 
 /// `s` in the current language ([`tr`] with [`current`]).
 pub fn t(s: &str) -> &str {
+    if HOSTED.get()
+        && let Some(value) = hosted_catalog().plain(s)
+    {
+        return value;
+    }
     tr(current(), s)
 }
 
 /// `s` in the current language as worded for `context` (one of [`catalog::CONTEXTS`]), falling
 /// back to the plain translation and then to English.
 pub fn tc<'a>(context: &str, s: &'a str) -> &'a str {
+    if HOSTED.get()
+        && let Some(value) = hosted_catalog().in_context(context, s)
+    {
+        return value;
+    }
     trc(current(), context, s)
 }
 

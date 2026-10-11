@@ -63,19 +63,60 @@ pub fn process(app: &mut WordApp) {
 
 fn execute(app: &mut WordApp, request: &Value) -> Result<Value, String> {
     match request["op"].as_str().unwrap_or("") {
+        "host" => {
+            if let Some(palette) = wordcraft_ui_egui::hosted::Palette::from_json(&request["theme"]) {
+                CONTEXT.with(|ctx| {
+                    if let Some(ctx) = ctx.borrow().as_ref() {
+                        ctx.data_mut(|d| d.insert_temp(egui::Id::new("hosted_palette"), palette));
+                    }
+                });
+            }
+            if let Some(host) = app.hosted.as_mut() {
+                host.title = request["title"].as_str().unwrap_or("Neues Dokument").chars().take(180).collect();
+                host.revision = request["revision"].as_u64().unwrap_or(0);
+                host.busy = request["busy"].as_bool().unwrap_or(false);
+                host.opened = request["opened"].as_bool().unwrap_or(false);
+                host.message = request["message"].as_str().unwrap_or("").chars().take(250).collect();
+            }
+            Ok(json!({"ok":true}))
+        }
+        "new" | "close" => {
+            app.session = wordcraft_engine::Session::new(wordcraft_doc::Document::new());
+            app.canvas = Default::default();
+            app.session.view.proofing = false;
+            app.ui.backstage = false;
+            app.canvas.want_focus = true;
+            snapshot(app)
+        }
         "open" => {
             let doc = if let Some(document) = request.get("document") {
                 serde_json::from_value(document.clone()).map_err(|e| e.to_string())?
             } else {
                 let data = request["data"].as_str().ok_or("Datei fehlt")?;
                 let bytes = STANDARD.decode(data).map_err(|e| e.to_string())?;
-                wordcraft_engine::io::open_bytes("document.docx", &bytes)?
+                let name = request["fileName"].as_str().unwrap_or("document.docx");
+                wordcraft_engine::io::open_bytes(name, &bytes)?
             };
             app.session = wordcraft_engine::Session::new(doc);
+            app.canvas = Default::default();
             app.session.view.proofing = false;
             app.ui.backstage = false;
-            app.session.path = Some("NALVRA Dokument.docx".into());
+            app.session.path = Some(format!("{}.docx", request["title"].as_str().unwrap_or("Dokument")).into());
+            app.canvas.want_focus = true;
             snapshot(app)
+        }
+        "convert" => {
+            let name = request["fileName"].as_str().ok_or("Dateiname fehlt")?;
+            let bytes = STANDARD.decode(request["data"].as_str().ok_or("Datei fehlt")?).map_err(|e| e.to_string())?;
+            if bytes.len() > MAX_MESSAGE / 2 {
+                return Err("Datei zu groß".into());
+            }
+            let doc = wordcraft_engine::io::open_bytes(name, &bytes)?;
+            let docx = wordcraft_engine::io::save_bytes("document.docx", &doc)?;
+            if docx.len() > MAX_MESSAGE / 2 {
+                return Err("Dokument zu groß".into());
+            }
+            Ok(json!({"docx":STANDARD.encode(docx)}))
         }
         "append" => {
             let text = request["text"].as_str().ok_or("Text fehlt")?;

@@ -53,6 +53,14 @@ pub fn start() {
                     app.ui.show_discord = false;
                     app.ui.language = "de".into();
                     app.session.view.proofing = false;
+                    app.hosted = Some(wordcraft_ui_egui::hosted::HostedDocument {
+                        title: "Neues Dokument".into(),
+                        revision: 0,
+                        busy: false,
+                        opened: false,
+                        message: "Bereit".into(),
+                        dispatch: Box::new(|action| crate::nalvra::emit(serde_json::json!({"event":"action", "action":action}))),
+                    });
                     crate::nalvra::register(&cc.egui_ctx);
                     Ok(Box::new(WebShell { app, inbox, reported_dirty: None }))
                 }),
@@ -90,7 +98,18 @@ impl eframe::App for WebShell {
                 let name = f.path().file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_else(|| "dropped".into());
                 match f.bytes_async().await {
                     Ok(bytes) => {
-                        inbox.lock().unwrap_or_else(|e| e.into_inner()).push((name, bytes));
+                        if wordcraft_engine::io::OPEN_EXTS.iter().any(|ext| name.to_lowercase().ends_with(&format!(".{ext}")))
+                            && bytes.len() <= 16 * 1024 * 1024
+                        {
+                            use base64::Engine as _;
+                            crate::nalvra::emit(
+                                serde_json::json!({"event":"import", "title":name, "data":base64::engine::general_purpose::STANDARD.encode(bytes)}),
+                            );
+                        } else if IMAGE_EXTS.iter().any(|ext| name.to_lowercase().ends_with(&format!(".{ext}"))) {
+                            inbox.lock().unwrap_or_else(|e| e.into_inner()).push((name, bytes));
+                        } else {
+                            crate::nalvra::emit(serde_json::json!({"event":"error", "error":"Bitte eine DOCX-Datei bis 16 MB öffnen."}));
+                        }
                         ctx.request_repaint();
                     }
                     Err(e) => log::error!("couldn't read dropped file {name}: {e}"),

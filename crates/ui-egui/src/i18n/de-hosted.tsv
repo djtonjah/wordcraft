@@ -1,0 +1,163 @@
+# German primary controls for the NALVRA embedding. Advanced untranslated controls use English.
+	File	Datei
+	Home	Start
+	Insert	Einfügen
+	Design	Gestaltung
+	Layout	Layout
+	References	Verweise
+	Mailings	Serienbriefe
+	Review	Überprüfen
+	View	Ansicht
+	Help	Hilfe
+	Table Design	Tabellengestaltung
+	Table Layout	Tabellenlayout
+	Picture Format	Bildformat
+	Shape Format	Formformat
+	Font	Schrift
+	Paragraph	Absatz
+	Styles	Formatvorlagen
+	Editing	Bearbeiten
+	Clipboard	Zwischenablage
+	Paste	Einfügen
+	Cut	Ausschneiden
+	Copy	Kopieren
+	Format Painter	Format übertragen
+	Undo	Rückgängig
+	Redo	Wiederholen
+	Undo {action}	{action} rückgängig
+	Redo {action}	{action} wiederholen
+	Bold	Fett
+	Italic	Kursiv
+	Underline	Unterstrichen
+	Strikethrough	Durchgestrichen
+	Superscript	Hochgestellt
+	Subscript	Tiefgestellt
+	Font Color	Schriftfarbe
+	Font Size	Schriftgröße
+	Text Highlight Color	Texthervorhebung
+	Clear All Formatting	Formatierung entfernen
+	Increase Font Size	Schrift vergrößern
+	Decrease Font Size	Schrift verkleinern
+	Change Case	Groß- und Kleinschreibung
+	Bullets	Aufzählung
+	Numbering	Nummerierung
+	Multilevel List	Liste mit Ebenen
+	Align Left	Linksbündig
+	Center	Zentriert
+	Align Right	Rechtsbündig
+	Justify	Blocksatz
+	Decrease Indent	Einzug verkleinern
+	Increase Indent	Einzug vergrößern
+	Line and Paragraph Spacing	Zeilen- und Absatzabstand
+	Shading	Schattierung
+	Borders	Rahmen
+	Sort	Sortieren
+	Show/Hide	Formatierungszeichen
+	Find	Suchen
+	Replace	Ersetzen
+	Select	Auswählen
+	Select All	Alles auswählen
+	Normal	Standard
+	Title	Titel
+	Subtitle	Untertitel
+	Heading 1	Überschrift 1
+	Heading 2	Überschrift 2
+	Heading 3	Überschrift 3
+	Pages	Seiten
+	Cover Page	Titelseite
+	Blank Page	Leere Seite
+	Page Break	Seitenumbruch
+	Table	Tabelle
+	Tables	Tabellen
+	Pictures	Bilder
+	Picture	Bild
+	Shapes	Formen
+	Icons	Symbole
+	Link	Link
+	Links	Links
+	Bookmark	Lesezeichen
+	Header	Kopfzeile
+	Footer	Fußzeile
+	Page Number	Seitennummer
+	Text	Text
+	Text Box	Textfeld
+	Symbol	Symbol
+	Symbols	Symbole
+	Equation	Formel
+	Date & Time	Datum und Uhrzeit
+	Page Setup	Seite einrichten
+	Margins	Seitenränder
+	Orientation	Ausrichtung
+	Size	Papierformat
+	Columns	Spalten
+	Breaks	Umbrüche
+	Portrait	Hochformat
+	Landscape	Querformat
+	Spacing	Abstand
+	Indent	Einzug
+	Before	Vorher
+	After	Nachher
+	Position	Position
+	Wrap Text	Textumbruch
+	Arrange	Anordnen
+	Bring Forward	Nach vorne
+	Send Backward	Nach hinten
+	Selection Pane	Objektauswahl
+	Align	Ausrichten
+	Group	Gruppieren
+	Rotate	Drehen
+	Crop	Zuschneiden
+	Width	Breite
+	Height	Höhe
+	Zoom	Zoom
+	Read Mode	Lesemodus
+	Print Layout	Drucklayout
+	Web Layout	Weblayout
+	Ruler	Lineal
+	Navigation Pane	Navigation
+	Page Color	Seitenfarbe
+	Page Borders	Seitenrahmen
+	Watermark	Wasserzeichen
+	Themes	Designs
+	Colors	Farben
+	Fonts	Schriftarten
+	Comments	Kommentare
+	New Comment	Neuer Kommentar
+	Delete	Löschen
+	Previous	Zurück
+	Next	Weiter
+	Track Changes	Änderungen verfolgen
+	Accept	Annehmen
+	Reject	Ablehnen
+	Language	Sprache
+	Spelling & Grammar	Rechtschreibung und Grammatik
+	Word Count	Wörter zählen
+	Table of Contents	Inhaltsverzeichnis
+	Footnotes	Fußnoten
+	Insert Footnote	Fußnote einfügen
+	Insert Endnote	Endnote einfügen
+	Captions	Beschriftungen
+	Insert Caption	Beschriftung einfügen
+	New	Neu
+	Open	Öffnen
+	Save	Speichern
+	Save As	Speichern unter
+	Print	Drucken
+	Close	Schließen
+	Cancel	Abbrechen
+	OK	OK
+	Apply	Übernehmen
+	Options	Optionen
+	Search	Suchen
+	Search commands	Befehle suchen
+	Page {page} of {total}	Seite {page} von {total}
+	{count} words	{count} Wörter
+	Insert Rows Above	Zeilen oberhalb einfügen
+	Insert Rows Below	Zeilen unterhalb einfügen
+	Insert Columns Left	Spalten links einfügen
+	Insert Columns Right	Spalten rechts einfügen
+	Merge Cells	Zellen verbinden
+	Split Cells	Zellen teilen
+	Delete Rows	Zeilen löschen
+	Delete Columns	Spalten löschen
+	Delete Table	Tabelle löschen
